@@ -2,9 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
+/**
+ * @method static paginate(Repository|Application $config)
+ */
 class Message extends Model
 {
     protected $fillable = [
