@@ -73,19 +73,43 @@ class MessageController extends Controller
      */
     public function edit(Message $message): View
     {
-        return view('pages.message.edit');
+        $message = Message::find($message);
+
+        $response = [
+            'message' => $message->load(['teachers', 'students'])->first(),
+            'teachers' => Teacher::all(),
+            'students' => Student::all(),
+        ];
+
+        return view('pages.message.edit', $response);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Message  $message
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\Message $message
+     * @return RedirectResponse
      */
-    public function update(Request $request, Message $message)
+    public function update(Message $message): RedirectResponse
     {
-        //todo update message
+        $message->fill(request()->only($message->getFillable()));
+
+        $message->teachers()->detach();
+        $message->students()->detach();
+
+        if (request()->has('teachers')) {
+            $teachers = Teacher::whereIn('id', request()->get('teachers'))->get();
+            $message->teachers()->sync($teachers, true);
+        }
+
+        if (request()->has('students')) {
+            $students = Student::whereIn('id', request()->get('students'))->get();
+            $message->students()->sync($students, true);
+        }
+
+        $message->save();
+
+        return redirect()->action('MessageController@index');
     }
 
     /**

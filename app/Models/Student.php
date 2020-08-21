@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
+/**
+ * @property string first_name
+ * @property string last_name
+ * @method static whereIn(string $string, $get)
+ */
 class Student extends Model
 {
     protected $fillable = [
