@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Models\Student;
+use App\Models\Teacher;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -29,18 +32,37 @@ class MessageController extends Controller
      */
     public function create(): View
     {
-        return view('pages.message.create');
+        $response = [
+            'teachers' => Teacher::all(),
+            'students' => Student::all(),
+        ];
+
+        return view('pages.message.create', $response);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(): RedirectResponse
     {
-        //todo store message
+        /** @var Message $message */
+        $message = Message::create(request()->only((new Message)->getFillable()));
+
+        if (request()->has('teachers')) {
+            $teachers = Teacher::whereIn('id', request()->get('teachers'))->get();
+            $message->teachers()->attach($teachers);
+        }
+
+        if (request()->has('students')) {
+            $students = Student::whereIn('id', request()->get('students'))->get();
+            $message->students()->attach($students);
+        }
+
+        $message->save();
+
+        return redirect()->action('MessageController@index');
     }
 
     /**
@@ -69,12 +91,17 @@ class MessageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Message  $message
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\Message $message
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function destroy(Message $message)
+    public function destroy(Message $message): RedirectResponse
     {
-        //todo delete message
+        $message->teachers()->detach();
+        $message->students()->detach();
+        $message->delete();
+
+        return redirect()->route('message.index');
     }
 
     public function send(Message $message, Request $request)

@@ -20,4 +20,12 @@ class Student extends Model
     {
         return $this->morphToMany(Message::class, 'recipient', 'message_recipients');
     }
+
+    /**
+     * @return string
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
 }

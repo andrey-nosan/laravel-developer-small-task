@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  * @method static paginate(Repository|Application $config)
+ * @method static create(array $attributes)
  */
 class Message extends Model
 {
