@@ -7,6 +7,8 @@ use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MessageController extends Controller
@@ -47,22 +49,19 @@ class MessageController extends Controller
      */
     public function store(): RedirectResponse
     {
+        $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
+        Storage::put($file, request()->get('body'));
+        request()->merge(['body' => $file]);
+
         /** @var Message $message */
         $message = Message::create(request()->only((new Message)->getFillable()));
 
-        if (request()->has('teachers')) {
-            $teachers = Teacher::whereIn('id', request()->get('teachers'))->get();
-            $message->teachers()->attach($teachers);
-        }
-
-        if (request()->has('students')) {
-            $students = Student::whereIn('id', request()->get('students'))->get();
-            $message->students()->attach($students);
-        }
+        $message->teachers()->attach(request()->get('teachers'));
+        $message->students()->attach(request()->get('students'));
 
         $message->save();
 
-        return redirect()->action('MessageController@index');
+        return redirect()->route('message.index');
     }
 
     /**
@@ -92,24 +91,16 @@ class MessageController extends Controller
      */
     public function update(Message $message): RedirectResponse
     {
-        $message->fill(request()->only($message->getFillable()));
+        Storage::put($message->body_url, request()->get('body'));
 
-        $message->teachers()->detach();
-        $message->students()->detach();
+        $message->fill(request()->except('body'));
 
-        if (request()->has('teachers')) {
-            $teachers = Teacher::whereIn('id', request()->get('teachers'))->get();
-            $message->teachers()->sync($teachers, true);
-        }
-
-        if (request()->has('students')) {
-            $students = Student::whereIn('id', request()->get('students'))->get();
-            $message->students()->sync($students, true);
-        }
+        $message->teachers()->sync(request()->get('teachers'), true);
+        $message->students()->sync(request()->get('students'), true);
 
         $message->save();
 
-        return redirect()->action('MessageController@index');
+        return redirect()->route('message.index');
     }
 
     /**
@@ -124,6 +115,8 @@ class MessageController extends Controller
         $message->teachers()->detach();
         $message->students()->detach();
         $message->delete();
+
+        Storage::delete($message->body_url);
 
         return redirect()->route('message.index');
     }

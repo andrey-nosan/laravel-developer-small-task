@@ -130,6 +130,8 @@ return [
         'size' => env('PAGINATION_SIZE', 10),
     ],
 
+    'message_dir' => env('MESSAGE_DIR', 'messages'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

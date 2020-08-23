@@ -23,10 +23,10 @@
                     <tr>
                         <th scope="row">{{ $loop->iteration + $messages->perPage() * ($messages->currentPage() - 1) }}</th>
                         <td>{{ $message->subject }}</td>
-                        <td>{{ $message->body }}</td>
+                        <td>{{ $message->body_content }}</td>
                         <td>{{ $message->sent ? __('Yes') : __('No') }}</td>
                         <td>
-                            <form action="{{ route('message.destroy',$message) }}" method="POST">
+                            <form action="{{ route('message.destroy', $message) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <a class="btn btn-primary" href="{{ route('message.edit',$message) }}" title="Edit message">Edit</a>

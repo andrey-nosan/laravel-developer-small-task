@@ -21,7 +21,7 @@
                 </div>
                 <div class="form-group">
                     <label for="body_input">Body</label>
-                    <textarea name="body" class="form-control" id="body_input" rows="3" required>{{ old('body', $message->body) }}</textarea>
+                    <textarea name="body" class="form-control" id="body_input" rows="3" required>{{ old('body', $message->body_content) }}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="recipient_teacher">Teachers:</label>
