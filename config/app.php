@@ -124,6 +124,15 @@ return [
     'cipher' => 'AES-256-CBC',
 
     /*
+     * Paginator settings
+     */
+    'pagination' => [
+        'size' => env('PAGINATION_SIZE', 10),
+    ],
+
+    'message_dir' => env('MESSAGE_DIR', 'messages'),
+
+    /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
