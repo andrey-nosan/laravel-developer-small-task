@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MessageMail;
 use App\Models\Message;
 use App\Models\Student;
 use App\Models\Teacher;
+use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -43,23 +46,32 @@ class MessageController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @return RedirectResponse
      */
     public function store(): RedirectResponse
     {
         $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
-        Storage::put($file, request()->get('body'));
-        request()->merge(['body' => $file]);
 
-        /** @var Message $message */
-        $message = Message::create(request()->only((new Message)->getFillable()));
+        DB::beginTransaction();
+        try {
+            Storage::put($file, request()->get('body'));
+            request()->merge(['body' => $file]);
 
-        $message->teachers()->attach(request()->get('teachers'));
-        $message->students()->attach(request()->get('students'));
+            /** @var Message $message */
+            $message = Message::create(request()->only((new Message)->getFillable()));
 
-        $message->save();
+            $message->teachers()->attach(request()->get('teachers'));
+            $message->students()->attach(request()->get('students'));
+
+            $message->save();
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollback();
+            Storage::delete($file);
+
+            return redirect()->route('message.index');
+        }
 
         return redirect()->route('message.index');
     }
@@ -67,15 +79,13 @@ class MessageController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\Models\Message $message
+     * @param Message $message
      * @return View
      */
     public function edit(Message $message): View
     {
-        $message = Message::find($message);
-
         $response = [
-            'message' => $message->load(['teachers', 'students'])->first(),
+            'message' => Message::find($message)->load(['teachers', 'students'])->first(),
             'teachers' => Teacher::all(),
             'students' => Student::all(),
         ];
@@ -86,19 +96,28 @@ class MessageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Models\Message $message
+     * @param Message $message
      * @return RedirectResponse
      */
     public function update(Message $message): RedirectResponse
     {
-        Storage::put($message->body_url, request()->get('body'));
+        DB::beginTransaction();
+        try {
+            Storage::put($message->body_url, request()->get('body'));
 
-        $message->fill(request()->except('body'));
+            $message->fill(request()->except('body'));
 
-        $message->teachers()->sync(request()->get('teachers'), true);
-        $message->students()->sync(request()->get('students'), true);
+            $message->teachers()->sync(request()->get('teachers'), true);
+            $message->students()->sync(request()->get('students'), true);
 
-        $message->save();
+            $message->save();
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollback();
+
+            return redirect()->route('message.index');
+        }
 
         return redirect()->route('message.index');
     }
@@ -106,9 +125,9 @@ class MessageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\Models\Message $message
+     * @param Message $message
      * @return RedirectResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(Message $message): RedirectResponse
     {
@@ -121,8 +140,37 @@ class MessageController extends Controller
         return redirect()->route('message.index');
     }
 
-    public function send(Message $message, Request $request)
+    /**
+     * @param Message $message
+     * @return RedirectResponse
+     */
+    public function send(Message $message): RedirectResponse
     {
-        //todo send message to recipients
+        /** @var Teacher $teacher */
+        foreach ($message->teachers as $teacher) {
+            Mail::to($teacher->email)
+                ->queue(new MessageMail(
+                    [
+                        'subject' => $message->subject,
+                        'body_content' => $message->body_content,
+                        'name' => $teacher->fullname,
+                    ]
+                ));
+        }
+
+        /** @var Student $student */
+        foreach ($message->students as $student) {
+            Mail::to($student->email)->queue(new MessageMail(
+                [
+                    'subject' => $message->subject,
+                    'body_content' => $message->body_content,
+                    'name' => $student->fullname,
+                ]
+            ));
+        }
+
+        $message->update(['sent' => true]);
+
+        return redirect()->route('message.index');
     }
 }

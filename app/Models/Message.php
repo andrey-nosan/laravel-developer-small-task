@@ -11,9 +11,13 @@ use Illuminate\Support\Facades\Storage;
 /**
  * @method static paginate(Repository|Application $config)
  * @method static create(array $attributes)
+ * @method static find(Message|int $message)
  * @property string body
  * @property string body_url
  * @property string body_content
+ * @property mixed teachers
+ * @property mixed students
+ * @property string subject
  */
 class Message extends Model
 {

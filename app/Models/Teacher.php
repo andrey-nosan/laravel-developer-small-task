@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 /**
  * @property string first_name
  * @property string last_name
+ * @property string email
+ * @property string fullname
  * @method static whereIn(string $string, $get)
  */
 class Teacher extends Model

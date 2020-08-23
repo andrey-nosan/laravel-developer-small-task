@@ -29,12 +29,10 @@
                             <form action="{{ route('message.destroy', $message) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <a class="btn btn-primary" href="{{ route('message.edit',$message) }}" title="Edit message">Edit</a>
-                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <a class="btn btn-primary" href="{{ route('message.edit',$message) }}" title="Edit message">{{__('Edit')}}</a>
+                                <button type="submit" class="btn btn-danger">{{__('Delete')}}</button>
+                                <a class="btn btn-primary" href="{{  route('message.send', $message)}}" title="Send message">{{ __('Send') }}</a>
                             </form>
-    {{--                        <a href="{{  route('message.send', $message)}}" title="Send message">--}}
-    {{--                            <i class="material-icons">send</i>--}}
-    {{--                        </a>--}}
                         </td>
                     </tr>
                 @empty
