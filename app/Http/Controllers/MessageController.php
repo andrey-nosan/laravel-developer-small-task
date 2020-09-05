@@ -6,6 +6,7 @@ use App\Mail\MessageMail;
 use App\Models\Message;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Traits\Validatable;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class MessageController extends Controller
 {
+    use Validatable;
+
     /**
      * Display a listing of the resource.
      *
@@ -50,6 +53,8 @@ class MessageController extends Controller
      */
     public function store(): RedirectResponse
     {
+        $this->validateMessage();
+
         $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
 
         DB::beginTransaction();
@@ -101,6 +106,8 @@ class MessageController extends Controller
      */
     public function update(Message $message): RedirectResponse
     {
+        $this->validateMessage();
+
         DB::beginTransaction();
         try {
             Storage::put($message->body_url, request()->get('body'));
