@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
  * @property mixed teachers
  * @property mixed students
  * @property string subject
+ * @property boolean sent
  */
 class Message extends Model
 {
@@ -25,6 +26,11 @@ class Message extends Model
         'subject',
         'body',
         'sent',
+    ];
+
+    protected $appends = [
+        'body_content',
+        'is_sent',
     ];
 
     /**
@@ -57,5 +63,13 @@ class Message extends Model
     public function getBodyUrlAttribute(): string
     {
         return $this->body;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsSentAttribute(): string
+    {
+        return $this->sent ? __('Yes') : __('No');
     }
 }

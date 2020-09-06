@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MessageResource;
 use App\Mail\MessageMail;
 use App\Models\Message;
 use App\Models\Student;
@@ -19,16 +20,26 @@ class MessageController extends Controller
 {
     use Validatable;
 
+    private $message;
+
+    public function __construct(Message $message)
+    {
+        $this->message = $message;
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return View
      */
-    public function index(): View
+    public function index()
     {
         $response = [
             'messages' => Message::paginate(config('app.pagination.size')),
         ];
+
+        if (request()->ajax()) {
+            return response()->json($response);
+        }
 
         return view('pages.message.index', $response);
     }

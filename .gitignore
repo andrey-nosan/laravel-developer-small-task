@@ -12,3 +12,7 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 composer.lock
+/public/mix-manifest.json
+/package-lock.json
+/public/css/
+/public/js/
