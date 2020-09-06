@@ -20,6 +20,10 @@ class Teacher extends Model
         'email',
     ];
 
+    protected $appends = [
+        'fullname',
+    ];
+
     /**
      * @return MorphToMany
      */
