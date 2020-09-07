@@ -75,6 +75,7 @@
             sendMessage: function (id) {
                 axios.get('/api/message/' + id + '/send')
                     .then((response) => {
+                        this.messages = response.data.messages;
                         this.$router.replace({path: '/'});
                     })
                     .catch(function (response) {

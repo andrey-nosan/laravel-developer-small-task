@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="panel panel-default">
+        <div v-if="is_loaded" class="panel panel-default">
             <h2 class="panel-heading">New message</h2>
             <div class="panel-body">
                 <form v-on:submit.prevent="saveForm()">
@@ -47,18 +47,21 @@
 <script>
     export default {
         mounted() {
+            this.is_loaded = false;
             axios.get('/api/message/create')
                 .then((response) => {
                     this.teachersList = response.data.teachers;
                     this.studentsList = response.data.students;
+
+                    this.is_loaded = true;
                 })
                 .catch(() => {
                     alert("Could not load message")
                 });
         },
-        data: function () {
+        data() {
             return {
-                hide: true,
+                is_loaded: false,
                 message: {
                     subject: '',
                     body: '',

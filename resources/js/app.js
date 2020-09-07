@@ -47,4 +47,7 @@ const router = new VueRouter({ routes })
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({ router }).$mount('#app')
+const app = new Vue({
+    router,
+    el: '#app',
+});

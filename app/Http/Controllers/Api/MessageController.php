@@ -22,7 +22,7 @@ class MessageController extends Controller
     public function index(): array
     {
         return [
-            'messages' => Message::paginate(config('app.pagination.size')),
+            'messages' => Message::orderBy('id', 'desc')->paginate(config('app.pagination.size')),
         ];
     }
 
@@ -46,7 +46,7 @@ class MessageController extends Controller
     public function edit(Message $message): JsonResponse
     {
         $response = [
-            'message' => Message::find($message)->load(['teachers', 'students'])->first(),
+            'message' => $message->load(['teachers', 'students']),
             'teachers' => Teacher::all(),
             'students' => Student::all(),
         ];

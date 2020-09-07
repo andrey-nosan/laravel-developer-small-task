@@ -5,7 +5,7 @@
                 <router-link :to="{name: 'createMessage'}" class="btn btn-primary">Create message</router-link>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div v-if="is_loaded" class="panel panel-default">
             <h2 class="panel-heading">Edit message</h2>
             <div class="panel-body">
                 <form v-on:submit.prevent="saveForm()">
@@ -54,6 +54,7 @@
 <script>
     export default {
         mounted() {
+            this.is_loaded = false;
             this.messageId = this.$route.params.id;
             axios.get('/api/message/' + this.messageId + '/edit')
                 .then((response) => {
@@ -63,13 +64,16 @@
 
                     this.teachers = this.message.teachers.map(a => a.id);
                     this.students = this.message.students.map(a => a.id);
+
+                    this.is_loaded = true;
                 })
                 .catch(() => {
                     alert("Could not load message")
                 });
         },
-        data: function () {
+        data() {
             return {
+                is_loaded: false,
                 messageId: null,
                 message: {
                     subject: '',
@@ -80,7 +84,7 @@
                 teachers: [],
                 teachersList: [],
                 teacher: {
-                    fullname: '',
+                    fullName: '',
                     email: '',
                 },
                 students: [],
