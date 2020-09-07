@@ -48,3 +48,15 @@ Create the database and run migrations:
 ```bash
 $ php artisan migrate --seed
 ```
+Generate route list for JS:
+```bash
+$ php artisan route:json
+```
+Run npm install:
+```bash
+$ npm i
+```
+Run npm build:
+```bash
+$ npm run dev
+```
