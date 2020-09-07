@@ -57,13 +57,13 @@
         },
         methods: {
             update: function (page = 1) {
-                axios.get('/api/message?page=' + page).then((response) => {
+                axios.get(route('api.message.index') + '?page=' + page).then((response) => {
                     this.messages = response.data.messages;
                 });
             },
             deleteMessage: function (id, index) {
                 if (confirm("Do you really want to delete it?")) {
-                    axios.delete('/api/message/' + id)
+                    axios.delete(route('api.message.destroy', {message: id}))
                         .then((response) => {
                             this.messages.data.splice(index, 1);
                         })
@@ -73,7 +73,7 @@
                 }
             },
             sendMessage: function (id) {
-                axios.get('/api/message/' + id + '/send')
+                axios.get(route('api.message.send', {message: id}))
                     .then((response) => {
                         this.messages = response.data.messages;
                         this.$router.replace({path: '/'});

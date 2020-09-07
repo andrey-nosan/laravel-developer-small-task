@@ -56,7 +56,7 @@
         mounted() {
             this.is_loaded = false;
             this.messageId = this.$route.params.id;
-            axios.get('/api/message/' + this.messageId + '/edit')
+            axios.get(route('api.message.edit', {message: this.messageId}))
                 .then((response) => {
                     this.message = response.data.message;
                     this.teachersList = response.data.teachers;
@@ -99,7 +99,7 @@
             saveForm() {
                 this.message.teachers = this.teachers;
                 this.message.students = this.students;
-                axios.put('/api/message/' + this.messageId, this.message)
+                axios.put(route('api.message.update', {message: this.messageId}), this.message)
                     .then(() => {
                         this.$router.replace('/');
                     })

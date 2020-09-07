@@ -39,3 +39,37 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+try {
+    var routes = require('./routes.json');
+    window.route = function() {
+        let args = Array.prototype.slice.call(arguments);
+        let name = args.shift();
+        args = args.shift();
+        let key;
+
+        if (routes[name] === undefined) {
+            console.warn('Unknown route ', name);
+        } else {
+            let url = '/' + routes[name];
+
+            for (key in args) {
+                let reg = "(\\{" + key.toString() + "\\?\\})|(\\{" + key.toString() + "\\})";
+                url = url.replace(new RegExp(reg, 'g'), args[key]);
+            }
+            let notFound = url.match(new RegExp('\\{[a-z,A-Z]{0,}\\}', 'g'));
+            if (notFound !== null) {
+                alert('You did not pass the parameters: ' + notFound);
+                console.warn('You did not pass the parameters: ', notFound);
+                return false;
+            }
+
+            return url.replace(/\{[a-z,A-Z]{0,}\?\}/g, '')
+                .replace(/\/\/\//, '/')
+                .replace(/\/\//, '/')
+                .replace(/\/$/, '');
+        }
+    };
+} catch (e) {
+    console.warn(e);
+}
