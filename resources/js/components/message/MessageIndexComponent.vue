@@ -19,8 +19,8 @@
                     <tr v-for="(message, index) in messages.data" :key="message.id">
                         <!--todo: improve numbering-->
                         <th class="text-center align-middle" scope="row">{{ index + 1 + messages.per_page * (messages.current_page - 1) }}</th>
-                        <td class="align-middle">{{ message.subject }}</td>
-                        <td class="align-middle">{{ message.body_content }}</td>
+                        <td class="align-middle">{{ message.subject | truncate(30, '...') }}</td>
+                        <td class="align-middle">{{ message.body_content | truncate(50, '...') }}</td>
                         <td class="align-middle">{{ message.is_sent }}</td>
                         <td>
                             <router-link :to="{name: 'editMessage', params: {id: message.id}}" class="btn btn-xs btn-primary">
@@ -50,36 +50,47 @@
         data: function() {
             return {
                 'messages': {},
+                current_message_body: '',
             }
         },
         mounted() {
             this.update();
         },
+        filters: {
+            truncate: function (text, length, suffix) {
+                if (text.length > length) {
+                    return text.substring(0, length) + suffix;
+                } else {
+                    return text;
+                }
+            },
+        },
         methods: {
             update: function (page = 1) {
-                axios.get(route('api.message.index') + '?page=' + page).then((response) => {
+                axios.get(route('api.message.index') + '?page=' + page).then(response => {
                     this.messages = response.data.messages;
                 });
             },
             deleteMessage: function (id, index) {
                 if (confirm("Do you really want to delete it?")) {
                     axios.delete(route('api.message.destroy', {message: id}))
-                        .then((response) => {
+                        .then(() => {
                             this.messages.data.splice(index, 1);
                         })
-                        .catch((response) => {
+                        .catch(error => {
+                            console.log(error.response.data.errors);
                             alert("Could not delete company");
                         });
                 }
             },
             sendMessage: function (id) {
                 axios.get(route('api.message.send', {message: id}))
-                    .then((response) => {
+                    .then(response => {
                         this.messages = response.data.messages;
                         this.$router.replace({path: '/'});
                     })
-                    .catch(function (response) {
-                        console.log(response);
+                    .catch(error => {
+                        console.log(error.response.data.errors);
                         alert("Could not send message");
                     });
             }

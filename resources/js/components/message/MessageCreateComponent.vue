@@ -6,14 +6,22 @@
                 <form v-on:submit.prevent="saveForm()">
                     <div class="row">
                         <div class="col-xs-12 form-group">
-                            <label class="control-label">Subject</label>
-                            <input type="text" v-model="message.subject" class="form-control">
+                            <div class="form-line">
+                                <label class="control-label">Subject</label>
+                                <input type="text" v-model="message.subject" class="form-control"
+                                       :class="{'is-invalid': errors.subject }">
+                            </div>
+                            <span v-for="error in errors.subject" class="error text-danger">{{error}}</span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12 form-group">
-                            <label class="control-label">Body</label>
-                            <textarea class="form-control" v-model="message.body"></textarea>
+                            <div class="form-line">
+                                <label class="control-label">Body</label>
+                                <textarea class="form-control" v-model="message.body"
+                                          :class="{'is-invalid': errors.body }"></textarea>
+                            </div>
+                            <span v-for="error in errors.body" class="error text-danger">{{error}}</span>
                         </div>
                     </div>
                     <div class="row">
@@ -49,18 +57,23 @@
         mounted() {
             this.is_loaded = false;
             axios.get(route('api.message.create'))
-                .then((response) => {
+                .then(response => {
                     this.teachersList = response.data.teachers;
                     this.studentsList = response.data.students;
 
                     this.is_loaded = true;
                 })
-                .catch(() => {
+                .catch(error => {
+                    console.log(error.response.data.errors);
                     alert("Could not load message")
                 });
         },
         data() {
             return {
+                errors: {
+                    body: null,
+                    subject: null,
+                },
                 is_loaded: false,
                 message: {
                     subject: '',
@@ -90,9 +103,8 @@
                     .then(() => {
                         this.$router.push({path: '/'});
                     })
-                    .catch((response) => {
-                        console.log(response);
-                        alert("Could not create message");
+                    .catch(error => {
+                        this.errors = error.response.data.errors;
                     });
             }
         }

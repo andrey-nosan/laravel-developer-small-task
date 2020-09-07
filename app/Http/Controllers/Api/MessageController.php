@@ -98,7 +98,7 @@ class MessageController extends Controller
 
         DB::beginTransaction();
         try {
-            Storage::put($message->body_url, request()->get('body_content'));
+            Storage::put($message->body_url, request()->get('body'));
 
             $message->fill(request()->except('body'));
 
