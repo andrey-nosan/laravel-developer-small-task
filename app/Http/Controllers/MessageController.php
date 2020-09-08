@@ -90,7 +90,7 @@ class MessageController extends Controller
     public function edit(Message $message): View
     {
         $response = [
-            'message' => Message::find($message)->load(['teachers', 'students'])->first(),
+            'message' => $message->load(['teachers', 'students']),
             'teachers' => Teacher::all(),
             'students' => Student::all(),
         ];
