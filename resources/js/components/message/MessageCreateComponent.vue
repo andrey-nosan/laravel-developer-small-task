@@ -7,8 +7,9 @@
                     <div class="row">
                         <div class="col-xs-12 form-group">
                             <div class="form-line">
-                                <label class="control-label">Subject</label>
-                                <input type="text" v-model="message.subject" class="form-control"
+                                <label for="subject" class="control-label">Subject</label>
+                                <input type="text" v-model="message.subject"
+                                       class="form-control" id="subject"
                                        :class="{'is-invalid': errors.subject }">
                             </div>
                             <span v-for="error in errors.subject" class="error text-danger">{{error}}</span>
@@ -17,8 +18,8 @@
                     <div class="row">
                         <div class="col-xs-12 form-group">
                             <div class="form-line">
-                                <label class="control-label">Body</label>
-                                <textarea class="form-control" v-model="message.body"
+                                <label for="body" class="control-label">Body</label>
+                                <textarea class="form-control" v-model="message.body" id="body"
                                           :class="{'is-invalid': errors.body }"></textarea>
                             </div>
                             <span v-for="error in errors.body" class="error text-danger">{{error}}</span>
@@ -56,7 +57,7 @@
     export default {
         mounted() {
             this.is_loaded = false;
-            axios.get(route('api.message.create'))
+            axios.get(route('api.v1.message.create'))
                 .then(response => {
                     this.teachersList = response.data.teachers;
                     this.studentsList = response.data.students;
@@ -99,7 +100,7 @@
             saveForm() {
                 this.message.teachers = this.teachers;
                 this.message.students = this.students;
-                axios.post(route('api.message.store'), this.message)
+                axios.post(route('api.v1.message.store'), this.message)
                     .then(() => {
                         this.$router.push({path: '/'});
                     })

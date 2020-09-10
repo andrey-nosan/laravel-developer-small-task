@@ -12,8 +12,10 @@
                     <div class="row">
                         <div class="col-xs-12 form-group">
                             <div class="form-line">
-                                <label class="control-label">Subject</label>
-                                <input type="text" v-model="message.subject" class="form-control"
+                                <label for="subject" class="control-label">Subject</label>
+                                <input type="text" v-model="message.subject"
+                                       id="subject"
+                                       class="form-control"
                                        :class="{'is-invalid': errors.subject }">
                             </div>
                             <span v-for="error in errors.subject" class="error text-danger">{{error}}</span>
@@ -22,8 +24,9 @@
                     <div class="row">
                         <div class="col-xs-12 form-group">
                             <div class="form-line">
-                                <label class="control-label">Body</label>
+                                <label for="body" class="control-label">Body</label>
                                 <textarea class="form-control" v-model="message.body_content"
+                                          id="body"
                                           :class="{'is-invalid': errors.body }"></textarea>
                             </div>
                             <span v-for="error in errors.body" class="error text-danger">{{error}}</span>
@@ -31,8 +34,8 @@
                     </div>
                     <div class="row">
                         <div class="form-group">
-                            <label>Teachers:</label>
-                            <select class="form-control" v-model="teachers" :multiple="true">
+                            <label for="recipient_teacher">Teachers:</label>
+                            <select class="form-control" v-model="teachers" id="recipient_teacher" :multiple="true">
                                 <option v-for="teacher in teachersList"
                                         :value="teacher.id">{{ teacher.fullname }} ({{ teacher.email }})</option>
                             </select>
@@ -64,7 +67,7 @@
         mounted() {
             this.is_loaded = false;
             this.messageId = this.$route.params.id;
-            axios.get(route('api.message.edit', {message: this.messageId}))
+            axios.get(route('api.v1.message.edit', {message: this.messageId}))
                 .then(response => {
                     this.message = response.data.message;
                     this.teachersList = response.data.teachers;
@@ -113,7 +116,7 @@
                 this.message.teachers = this.teachers;
                 this.message.students = this.students;
                 this.message.body = this.message.body_content;
-                axios.put(route('api.message.update', {message: this.messageId}), this.message)
+                axios.put(route('api.v1.message.update', {message: this.messageId}), this.message)
                     .then(() => {
                         this.$router.replace('/');
                     })

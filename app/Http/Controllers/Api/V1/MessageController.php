@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use App\Mail\MessageMail;
+use Exception;
 use App\Models\{Message, Student, Teacher};
 use App\Traits\Validatable;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +23,7 @@ class MessageController extends Controller
     public function index(): array
     {
         return [
-            'messages' => Message::orderBy('id', 'desc')->paginate(config('app.pagination.size')),
+            'messages' => Message::orderBy('updated_at', 'desc')->paginate(config('app.pagination.size')),
         ];
     }
 
@@ -78,7 +79,7 @@ class MessageController extends Controller
             $message->save();
 
             DB::commit();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             DB::rollback();
             Storage::delete($file);
         } finally {
@@ -101,6 +102,7 @@ class MessageController extends Controller
             Storage::put($message->body_url, request()->get('body'));
 
             $message->fill(request()->except('body'));
+            $message->updated_at = now();
 
             $message->teachers()->sync(request()->get('teachers'), true);
             $message->students()->sync(request()->get('students'), true);
@@ -108,7 +110,7 @@ class MessageController extends Controller
             $message->save();
 
             DB::commit();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             DB::rollback();
         } finally {
             return response()->json($message->load(['teachers', 'students']));
@@ -118,7 +120,7 @@ class MessageController extends Controller
     /**
      * @param Message $message
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(Message $message): JsonResponse
     {

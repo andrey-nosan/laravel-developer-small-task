@@ -6,12 +6,14 @@ use Illuminate\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * @method static paginate(Repository|Application $config)
  * @method static create(array $attributes)
  * @method static find(Message|int $message)
+ * @method static orderBy(string $string, string $string1)
  * @property string body
  * @property string body_url
  * @property string body_content
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
  * @property mixed students
  * @property string subject
  * @property boolean sent
+ * @property Carbon|mixed updated_at
  */
 class Message extends Model
 {

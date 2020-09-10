@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+    const SUPPORT_VERSION_API = [1];
+
     /**
      * This namespace is applied to your controller routes.
      *
@@ -16,7 +18,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected $namespace = 'App\Http\Controllers';
 
-    protected $namespaceApi = 'App\Http\Controllers\API';
+    protected $namespaceApi = 'App\Http\Controllers\API\V%d';
 
     /**
      * The path to the "home" route for your application.
@@ -74,10 +76,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::prefix('api')
-            ->middleware('api')
-            ->namespace($this->namespaceApi)
-            ->as('api.')
-            ->group(base_path('routes/api.php'));
+        foreach (self::SUPPORT_VERSION_API as $version) {
+            if (file_exists(base_path("routes/api.v$version.php"))) {
+                Route::prefix("api/v" . $version)
+                    ->middleware(['api'])
+                    ->as("api.v$version.")
+                    ->namespace(sprintf($this->namespaceApi, $version))
+                    ->group(base_path("routes/api.v$version.php"));
+            }
+        }
     }
 }
