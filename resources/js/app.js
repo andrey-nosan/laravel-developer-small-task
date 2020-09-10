@@ -4,6 +4,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+import router from "./router";
+
 require('./bootstrap');
 
 window.Vue = require('vue');
@@ -23,23 +25,6 @@ window.Vue.use(VueRouter);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('pagination', require('laravel-vue-pagination'));
-
-import MessageIndexComponent from './components/message/MessageIndexComponent.vue';
-import MessageCreateComponent from './components/message/MessageCreateComponent.vue';
-import MessageEditComponent from './components/message/MessageEditComponent.vue';
-
-const routes = [
-    {
-        path: '/',
-        components: {
-            messageIndex: MessageIndexComponent
-        }
-    },
-    {path: '/create', component: MessageCreateComponent, name: 'createMessage'},
-    {path: '/message/edit/:id', component: MessageEditComponent, name: 'editMessage'},
-]
-
-const router = new VueRouter({ routes })
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
