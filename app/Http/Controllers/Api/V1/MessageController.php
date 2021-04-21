@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MessageStoreRequest;
 use App\Mail\MessageMail;
 use Exception;
+use Illuminate\Support\{Arr, Str};
 use App\Models\{Message, Student, Teacher};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\{DB, Mail, Storage};
-use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -62,13 +62,14 @@ class MessageController extends Controller
         $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
         Storage::put($file, $request->get('body'));
 
-        $request->merge(['body' => $file]);
+        $message_attributes = $request->only((new Message)->getFillable());
+        Arr::set($message_attributes, 'body', $file);
 
         DB::beginTransaction();
         try {
 
             /** @var Message $message */
-            $message = Message::create($request->only((new Message)->getFillable()));
+            $message = Message::create($message_attributes);
 
             $message->teachers()->attach($request->get('teachers'));
             $message->students()->attach($request->get('students'));
