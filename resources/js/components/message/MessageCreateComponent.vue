@@ -28,17 +28,21 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="recipient_teacher">Teachers:</label>
-                            <select class="form-control" v-model="teachers" id="recipient_teacher" multiple>
+                            <select class="form-control" v-model="teachers" id="recipient_teacher" multiple
+                                    :class="{'is-invalid': errors.teachers }">
                                 <option v-for="teacher in teachersList" :value="teacher.id">{{ teacher.fullname }} ({{ teacher.email }})</option>
                             </select>
+                            <span v-for="error in errors.teachers" class="error text-danger">{{error}}</span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group">
                             <label for="recipient_student">Students:</label>
-                            <select class="form-control" v-model="students" id="recipient_student" multiple>
+                            <select class="form-control" v-model="students" id="recipient_student" multiple
+                                    :class="{'is-invalid': errors.students }">
                                 <option v-for="student in studentsList" :value="student.id">{{ student.fullname }} ({{ student.email }})</option>
                             </select>
+                            <span v-for="error in errors.students" class="error text-danger">{{error}}</span>
                         </div>
                     </div>
                     <div class="row">

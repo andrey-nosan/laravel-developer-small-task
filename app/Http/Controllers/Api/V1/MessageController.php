@@ -1,20 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\API\V1;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MessageStoreRequest;
 use App\Mail\MessageMail;
 use Exception;
 use App\Models\{Message, Student, Teacher};
-use App\Traits\Validatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\{DB, Mail, Storage};
 use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
-    use Validatable;
-
     /**
      * Returns a listing of the resource.
      *
@@ -56,25 +54,24 @@ class MessageController extends Controller
     }
 
     /**
+     * @param MessageStoreRequest $request
      * @return JsonResponse
      */
-    public function store(): JsonResponse
+    public function store(MessageStoreRequest $request): JsonResponse
     {
-        $this->validateMessage();
-
         $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
-        Storage::put($file, request()->get('body'));
+        Storage::put($file, $request->get('body'));
 
-        request()->merge(['body' => $file]);
+        $request->merge(['body' => $file]);
 
         DB::beginTransaction();
         try {
 
             /** @var Message $message */
-            $message = Message::create(request()->only((new Message)->getFillable()));
+            $message = Message::create($request->only((new Message)->getFillable()));
 
-            $message->teachers()->attach(request()->get('teachers'));
-            $message->students()->attach(request()->get('students'));
+            $message->teachers()->attach($request->get('teachers'));
+            $message->students()->attach($request->get('students'));
 
             $message->save();
 
@@ -90,22 +87,21 @@ class MessageController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param MessageStoreRequest $request
      * @param Message $message
      * @return JsonResponse
      */
-    public function update(Message $message): JsonResponse
+    public function update(MessageStoreRequest $request, Message $message): JsonResponse
     {
-        $this->validateMessage();
-
         DB::beginTransaction();
         try {
-            Storage::put($message->body_url, request()->get('body'));
+            Storage::put($message->body_url, $request->get('body'));
 
-            $message->fill(request()->except('body'));
+            $message->fill($request->except('body'));
             $message->updated_at = now();
 
-            $message->teachers()->sync(request()->get('teachers'), true);
-            $message->students()->sync(request()->get('students'), true);
+            $message->teachers()->sync($request->get('teachers'), true);
+            $message->students()->sync($request->get('students'), true);
 
             $message->save();
 
