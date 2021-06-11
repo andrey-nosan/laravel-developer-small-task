@@ -12,20 +12,31 @@
                     <label for="subject_input">Subject</label>
                     <input type="text"
                            name="subject"
-                           class="form-control"
+                           value="{{ old('subject') }}"
+                           class="form-control @error('subject') is-invalid @enderror"
                            id="subject_input"
-                           placeholder="Message subject"
-                           required>
+                           placeholder="Message subject">
+                    @error('subject')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="body_input">Body</label>
-                    <textarea name="body" class="form-control" id="body_input" rows="3" required></textarea>
+                    <textarea name="body"
+                              class="form-control @error('body') is-invalid @enderror"
+                              id="body_input"
+                              rows="3">{{ old('body') }}</textarea>
+                    @error('body')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="recipient_teacher">Teachers:</label>
                     <select class="form-control" name="teachers[]" id="recipient_teacher" multiple>
                         @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->getKey() }}">{{ $teacher->full_name }} ({{ $teacher->email }})</option>
+                            <option value="{{ $teacher->getKey() }}"
+                                {{ collect(old('teachers'))->contains($teacher->getKey()) ? "selected" : "" }}
+                            >{{ $teacher->full_name }} ({{ $teacher->email }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -33,7 +44,9 @@
                     <label for="recipient_student">Students:</label>
                     <select class="form-control" name="students[]" id="recipient_student" multiple>
                         @foreach($students as $student)
-                            <option value="{{ $student->getKey() }}">{{ $student->full_name }} ({{ $student->email }})</option>
+                            <option value="{{ $student->getKey() }}"
+                                {{ collect(old('students'))->contains($student->getKey()) ? "selected" : "" }}
+                            >{{ $student->full_name }} ({{ $student->email }})</option>
                         @endforeach
                     </select>
                 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMessageRequest;
 use App\Mail\MessageMail;
 use App\Models\Message;
 use App\Models\Student;
@@ -46,22 +47,25 @@ class MessageController extends Controller
     }
 
     /**
+     * @param StoreMessageRequest $request
      * @return RedirectResponse
      */
-    public function store(): RedirectResponse
+    public function store(StoreMessageRequest $request): RedirectResponse
     {
+        $request->validated();
+
         $file = config('app.message_dir') . DIRECTORY_SEPARATOR . Str::uuid();
 
         DB::beginTransaction();
         try {
-            Storage::put($file, request()->get('body'));
-            request()->merge(['body' => $file]);
+            Storage::put($file, $request->get('body'));
+            $request->merge(['body' => $file]);
 
             /** @var Message $message */
-            $message = Message::create(request()->only((new Message)->getFillable()));
+            $message = Message::create($request->only((new Message)->getFillable()));
 
-            $message->teachers()->attach(request()->get('teachers'));
-            $message->students()->attach(request()->get('students'));
+            $message->teachers()->attach($request->get('teachers'));
+            $message->students()->attach($request->get('students'));
 
             $message->save();
 
@@ -69,11 +73,9 @@ class MessageController extends Controller
         } catch (Exception $exception) {
             DB::rollback();
             Storage::delete($file);
-
+        } finally {
             return redirect()->route('message.index');
         }
-
-        return redirect()->route('message.index');
     }
 
     /**
@@ -96,30 +98,31 @@ class MessageController extends Controller
     /**
      * Update the specified resource in storage.
      *
+     * @param StoreMessageRequest $request
      * @param Message $message
      * @return RedirectResponse
      */
-    public function update(Message $message): RedirectResponse
+    public function update(StoreMessageRequest $request, Message $message): RedirectResponse
     {
+        $request->validated();
+
         DB::beginTransaction();
         try {
-            Storage::put($message->body_url, request()->get('body'));
+            Storage::put($message->body_url, $request->get('body'));
 
-            $message->fill(request()->except('body'));
+            $message->fill($request->except('body'));
 
-            $message->teachers()->sync(request()->get('teachers'), true);
-            $message->students()->sync(request()->get('students'), true);
+            $message->teachers()->sync($request->get('teachers'), true);
+            $message->students()->sync($request->get('students'), true);
 
             $message->save();
 
             DB::commit();
         } catch (Exception $exception) {
             DB::rollback();
-
+        } finally {
             return redirect()->route('message.index');
         }
-
-        return redirect()->route('message.index');
     }
 
     /**
